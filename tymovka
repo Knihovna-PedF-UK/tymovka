@@ -1,0 +1,66 @@
+#!/usr/bin/env texlua
+
+os.setlocale ("", "time")
+local calendar_url = "https://calendar.google.com/calendar/ical/5rusd83rf1ncbmdl74k9k0rquk%40group.calendar.google.com/public/basic.ics"
+-- amount of seconds which should be matched for today
+local opening_hours = 11 * 60 * 60
+
+local lustache = require "lustache"
+local ical = require "ical"
+-- kpse.set_program_name "luatex"
+
+local function fetch_url(url)
+  local curl = io.popen(string.format("curl -s %s",url), "r")
+  if not curl then return nil, "Cannot open Curl" end
+  local body = curl:read("*all")
+  curl:close()
+  return body
+end
+
+-- get correct local time
+--
+local time_obj = os.date("*t")
+
+local function fix_time(t)
+  -- handle daily time saving 
+  local time_adjust = time_obj.isdst and 7200 or 3600
+  return t + time_adjust
+end
+
+local function format_hours(t)
+  -- return os.date("%H:%M",t)
+  return os.date("%X",fix_time(t))
+end
+
+-- return reservations that will happen in the amount of seconds contained
+-- in the difference variable
+local function match_reservations(events, difference)
+  local m = {}
+  local current_time = os.time()
+  for k,v in ipairs(events) do
+    local curr_dif = v.DTSTART - current_time
+    if math.abs(curr_dif) < difference then
+      m[#m+1] = {
+        start = format_hours(v.DTSTART),
+        stop  = format_hours(v.DTEND)
+      }
+    end
+  end
+  return m
+end
+
+print("Download calendar")
+print(calendar_url)
+local ical_str, msg = fetch_url(calendar_url)
+if not ical_str then
+  print("Error: " .. msg)
+  os.exit()
+end
+
+local entries = ical.new(ical_str)
+local events = entries:events()
+local matched = match_reservations(events, opening_hours)
+
+for k,v in pairs(matched) do
+  print(v.start, v.stop)
+end
