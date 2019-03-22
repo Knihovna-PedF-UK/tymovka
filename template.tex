@@ -1,0 +1,22 @@
+\documentclass{article}
+\usepackage{fontspec}
+\usepackage[czech]{babel}
+\setmainfont{Gill Sans}
+\pagestyle{empty}
+\parindent=0pt
+\begin{document}
+\vskip4em
+\huge\bfseries Rezervace týmové studovny
+\vskip6em
+
+\Large
+\today
+\vskip1em
+
+\mdseries
+\begin{tabular}{@{} l  c l}
+  {{#data}}
+  {{start}} &-- & {{stop}}\\
+  {{/data}}
+\end{tabular}
+\end{document}

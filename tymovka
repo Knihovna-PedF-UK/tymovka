@@ -1,20 +1,35 @@
 #!/usr/bin/env texlua
 
 os.setlocale ("", "time")
-local calendar_url = "https://calendar.google.com/calendar/ical/5rusd83rf1ncbmdl74k9k0rquk%40group.calendar.google.com/public/basic.ics"
+local calendar_url = "http://benes.wpneuron.com/studovna/?booked_ical&sh=2904f63a9f05b7995d85fcfda730a468"
 -- amount of seconds which should be matched for today
 local opening_hours = 11 * 60 * 60
+local template_name = "template.tex"
+
 
 local lustache = require "lustache"
 local ical = require "ical"
 -- kpse.set_program_name "luatex"
 
 local function fetch_url(url)
-  local curl = io.popen(string.format("curl -s %s",url), "r")
+  local curl = io.popen(string.format("curl -s '%s'",url), "r")
   if not curl then return nil, "Cannot open Curl" end
   local body = curl:read("*all")
   curl:close()
   return body
+end
+
+local function load_template(name)
+  local f = io.open(name, "r")
+  local tpl = f:read("*all")
+  f:close()
+  return tpl
+end
+
+local function run_latex(tex_content,jobname)
+  local  latex = io.popen("lualatex -jobname ".. jobname, "w")
+  latex:write(tex_content)
+  latex:close()
 end
 
 -- get correct local time
@@ -29,14 +44,14 @@ end
 
 local function format_hours(t)
   -- return os.date("%H:%M",t)
-  return os.date("%X",fix_time(t))
+  return os.date("%H:%M",fix_time(t))
 end
 
 -- return reservations that will happen in the amount of seconds contained
 -- in the difference variable
 local function match_reservations(events, difference)
   local m = {}
-  local current_time = os.time()
+  local current_time = os.time() --+ 3.5 * 24 * 3600
   for k,v in ipairs(events) do
     local curr_dif = v.DTSTART - current_time
     if math.abs(curr_dif) < difference then
@@ -58,9 +73,20 @@ if not ical_str then
 end
 
 local entries = ical.new(ical_str)
-local events = entries:events()
+
+local events = ical.events(entries)
 local matched = match_reservations(events, opening_hours)
 
-for k,v in pairs(matched) do
-  print(v.start, v.stop)
+local data = {data=matched}
+if #matched > 0 then
+  local template = load_template(template_name)
+  local tex_content = lustache:render(template, data)
+  local jobname = "rezervace"
+  run_latex(tex_content,jobname)
+  os.execute(string.format("xdg-open '%s'", jobname..".pdf"))
+else
+  print "Žádné rezervace pro dnešní den"
 end
+-- for k,v in pairs(matched) do
+  -- print(v.start, v.stop)
+-- end
