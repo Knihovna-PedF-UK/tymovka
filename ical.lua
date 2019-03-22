@@ -180,7 +180,7 @@ function ical.new(data)
 	end
 	
 	-- Return calendar
-	return entry.subs[1]
+	return entry--.subs[1]
 end
 
 function ical.duration(a, f)
