@@ -57,10 +57,13 @@ local function match_reservations(events, difference)
     if math.abs(curr_dif) < difference then
       m[#m+1] = {
         start = format_hours(v.DTSTART),
-        stop  = format_hours(v.DTEND)
+        stop  = format_hours(v.DTEND),
+        timestamp = v.DTSTART
       }
     end
   end
+  -- sort reservations for the current day chronologically 
+  table.sort(m,function(a,b) return a.timestamp < b.timestamp end)
   return m
 end
 
