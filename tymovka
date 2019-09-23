@@ -1,7 +1,7 @@
 #!/usr/bin/env texlua
 
 os.setlocale ("", "time")
-local calendar_url = "http://pages.pedf.cuni.cz/studovna/?booked_ical&sh=15592953a3f2f6196c18df881c0337f4"
+local calendar_url = "https://pages.pedf.cuni.cz/studovna/?booked_ical&sh=aec2580c5bb2542a844ca929b2babb0d"
 -- amount of seconds which should be matched for today
 local opening_hours = 11 * 60 * 60
 local template_name = "template.tex"
