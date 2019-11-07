@@ -1,7 +1,9 @@
 \documentclass{article}
 \usepackage{fontspec}
 \usepackage[czech]{babel}
-\setmainfont{Gill Sans}
+% \setmainfont{Gill Sans}
+\setmainfont{Fira Sans}
+\usepackage{uklogo}
 \pagestyle{empty}
 \parindent=0pt
 \begin{document}
@@ -14,9 +16,13 @@
 \vskip1em
 
 \mdseries
-\begin{tabular}{@{} l  c l}
+\begin{tabular}{@{} l }
   {{#data}}
-  {{start}} &-- & {{stop}}\\
+  {{start}}--{{stop}}\\
   {{/data}}
 \end{tabular}
+
+\vfill
+
+\uklogo[34pt]
 \end{document}
