@@ -1,3 +1,11 @@
 # Skript pro tisk rozpisu týmovky
 
 Stáhne iCal soubor z Google Calendar a vytiskne úkoly pro dnešní den
+
+# Jak spočítat počet návštěv za rok
+
+Vyexportovat z Wordpressu appointments do XML souboru, spustit příkaz 
+
+    lua statistika.lua rok < export.xml
+
+
