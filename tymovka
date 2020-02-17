@@ -27,7 +27,7 @@ local function load_template(name)
 end
 
 local function run_latex(tex_content,jobname)
-  local  latex = io.popen("lualatex -jobname ".. jobname, "w")
+  local  latex = io.popen("lualatex-dev -jobname ".. jobname, "w")
   latex:write(tex_content)
   latex:close()
 end
