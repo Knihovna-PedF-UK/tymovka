@@ -2,6 +2,7 @@
 \usepackage{fontspec}
 \usepackage[czech]{babel}
 % \setmainfont{Gill Sans}
+\usepackage[margin=3cm,top=4cm]{geometry}
 \setmainfont{Fira Sans}
 \usepackage{uklogo}
 \pagestyle{empty}
@@ -25,4 +26,8 @@
 \vfill
 
 \uklogo[34pt]
+
+% vykresli qrkód
+\AddToHook{shipout/background}
+{\put(17cm,-24.0cm){\qrbox{Studovnu si můžete\\ zarezervovat zde:}{bit.ly/3fJL1Ye}}}
 \end{document}
