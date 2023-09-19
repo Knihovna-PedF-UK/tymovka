@@ -47,6 +47,18 @@ local function format_hours(t)
   return os.date("%H:%M",fix_time(t))
 end
 
+local function get_stop_hour(v)
+  -- get hour segment 
+  local time = v.stop or ""
+  return tonumber(time:match("%d+")) or 1
+end
+
+local function get_mail(v)
+  local summary = v.description
+  local mail = summary:match("^(.-)\\n")
+  return mail
+end
+
 -- return reservations that will happen in the amount of seconds contained
 -- in the difference variable
 local function match_reservations(events, difference)
@@ -58,13 +70,46 @@ local function match_reservations(events, difference)
       m[#m+1] = {
         start = format_hours(v.DTSTART),
         stop  = format_hours(v.DTEND),
-        timestamp = v.DTSTART
+        name  = v.SUMMARY,
+        timestamp = v.DTSTART,
+        description = v.DESCRIPTION
       }
     end
   end
   -- sort reservations for the current day chronologically 
   table.sort(m,function(a,b) return a.timestamp < b.timestamp end)
-  return m
+  -- join subse reservations for one person 
+  local previous = 1
+  -- we need to save size for further processing
+  local size = #m
+  for i = 2, size do
+    if get_mail(m[i]) == get_mail(m[previous]) and 
+      get_stop_hour(m[i]) - get_stop_hour(m[previous]) == 1  
+    then
+      m[previous].stop = m[i].stop
+      m[i] = nil
+    else
+      previous = i
+    end
+  end
+  -- taky zobrazíme čísla skupin
+  local skupiny = {}
+  local skupiny_count = 0
+  local new = {}
+  for i = 1, size do
+    if m[i] then
+      local mail = get_mail(m[i]) 
+      local skupina = skupiny[mail] 
+      if not skupina then
+        skupiny_count = skupiny_count + 1
+        skupina = skupiny_count
+        skupiny[mail] = skupina
+      end
+      m[i].skupina = string.format("Skupina %i", skupina)
+      table.insert(new, m[i]) 
+    end
+  end
+  return new
 end
 
 print("Download calendar")
