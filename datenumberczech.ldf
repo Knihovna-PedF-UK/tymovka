@@ -1,0 +1,57 @@
+%%
+%% This is file `datenumberczech.ldf',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% datenumber.dtx  (with options: `czech')
+%% 
+%% This file is part of the `datenumber' package,
+%% 
+%% Copyright (C) 2001 J"org-Michael Schr"oder.
+%% 
+%% IMPORTANT NOTICE:
+%% 
+%% This program may be distributed and/or modified under the
+%% conditions of the LaTeX Project Public License, either version 1.2
+%% of this license or (at your option) any later version.
+%% The latest version of this license is in
+%% http://www.latex-project.org/lppl.txt
+%% and version 1.2 or later is part of all distributions of LaTeX
+%% version 1999/12/01 or later.
+%% 
+%% This program consists of all files listed in README.txt.
+%% 
+%% For error reports, or offers to help make this a more powerful
+%% tool, please contact me on schrj020@mail.uni-mainz.de
+%% 
+
+\ProvidesFile{datenumberczech.ldf}
+
+\makeatletter
+
+\def\@datelanguageczech{%
+  \def\@dayname{\@daynameczech}
+  \def\@monthname{\@monthnameczech}%
+  \def\@datedate{\@datedateczech}%
+}
+
+\def\@monthnameczech#1{%
+  \ifcase#1\or
+    Leden\or Únor\or Březen\or Duben\or Květen\or Červen\or
+    Červenec\or Srpen\or Září\or Říjen\or Listopad\or Prosinec\fi}%
+
+\def\@daynameczech#1{%
+  \ifcase#1\or
+    Pondělí\or Úterý\or Středa\or Čtvrtek\or
+    Pátek\or Sobota\or Neděle\fi}
+
+\def\@datedateczech{\datemonthname\space\thedateday, \thedateyear}
+
+\@datelanguageczech
+
+\makeatother
+
+\endinput
+%%
+%% End of file `datenumberczech.ldf'.
