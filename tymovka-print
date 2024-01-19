@@ -1,0 +1,88 @@
+#!/usr/bin/env texlua
+os.setlocale ("", "time")
+local csv_file = arg[1] or "/home/mint/Stažené/booked_appointments_export.csv"
+local csv = require "csv"
+local template_name = "template.tex"
+
+local lustache = require "lustache"
+
+local function make_groups(records)
+  local groups = {}
+  local skupina = 0
+  for _, rec in ipairs(records) do
+    local prev = groups[#groups] or {}
+    local start = rec["Start Time"]
+    local stop  = rec["End Time"]
+    local email = rec["Email"]
+    -- předešlá skupina pokračuje
+    if prev.email == email and start == prev.stop then
+      -- jen upgradujeme konečnej čas
+      prev.stop = stop
+    else
+      skupina = skupina + 1
+      local current = {
+        start = start,
+        stop  = stop,
+        skupina = string.format("Skupina %i", skupina),
+        email = email
+      }
+      table.insert(groups, current)
+    end
+  end
+  return groups 
+end
+
+
+local function load_template(name)
+  local f = io.open(name, "r")
+  local tpl = f:read("*all")
+  f:close()
+  return tpl
+end
+
+local function run_latex(tex_content,jobname)
+  local  latex = io.popen("lualatex-dev -jobname ".. jobname, "w")
+  latex:write(tex_content)
+  latex:close()
+end
+
+local f = io.open(csv_file, "r")
+if not f then
+  print("Nemůžu otevřít soubor", csv_file)
+  print("Možná je třeba ho stáhnout pomocí příkazu tymovka")
+  os.exit()
+end
+
+local text = f:read("*a")
+-- odstranit extra řádky
+text = text:gsub("Číslo ISIC\n", "Číslo ISIC ")
+
+f:close()
+
+local csv_file = csv.openstring(text, {header=true})
+
+-- testujeme dnešní den, ale musíme odstranit 0 před dny a měsíci, protože CSV soubor je neobsahuje
+local today = os.date("%d.%m.%Y"):gsub("%.0", ".")
+
+-- získáme dnešní záznamy
+local records = {}
+for data in csv_file:lines() do
+  if data["Date"] == today then
+    table.insert(records, data)
+  end
+end
+
+if #records > 0 then
+  -- sloučit rezervace pro jednotlivý skupiny
+  local groups = make_groups(records)
+  for k,v in pairs(groups) do
+    print(v.skupina, v.start, v.stop)
+  end
+  local template = load_template(template_name)
+  local tex_content = lustache:render(template, {data = groups})
+  local jobname = "rezervace"
+  run_latex(tex_content,jobname)
+  os.execute(string.format("xdg-open '%s'", jobname..".pdf"))
+else
+  print "Žádné rezervace pro dnešní den"
+end
