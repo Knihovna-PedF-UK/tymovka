@@ -1,0 +1,3 @@
+#!/bin/bash
+xdg-open https://pages.pedf.cuni.cz/studovna/wp-admin/admin.php?page=booked-settings#export-appointments
+echo Stáhni CSV soubor a spusť příkaz tymovka-print
