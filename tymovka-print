@@ -62,7 +62,7 @@ f:close()
 local csv_file = csv.openstring(text, {header=true})
 
 -- testujeme dnešní den, ale musíme odstranit 0 před dny a měsíci, protože CSV soubor je neobsahuje
-local today = os.date("%d.%m.%Y"):gsub("%.0", ".")
+local today = os.date("%d.%m.%Y"):gsub("%.0", "."):gsub("^0", "")
 
 -- získáme dnešní záznamy
 local records = {}
