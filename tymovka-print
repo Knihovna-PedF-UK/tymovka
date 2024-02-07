@@ -6,6 +6,7 @@ local template_name = "template.tex"
 
 local lustache = require "lustache"
 
+local used_emails = {}
 local function make_groups(records)
   local groups = {}
   local skupina = 0
@@ -15,11 +16,17 @@ local function make_groups(records)
     local stop  = rec["End Time"]
     local email = rec["Email"]
     -- předešlá skupina pokračuje
+    print(email, start, prev.stop)
     if prev.email == email and start == prev.stop then
       -- jen upgradujeme konečnej čas
       prev.stop = stop
     else
-      skupina = skupina + 1
+      if used_emails[email] then
+        skupina = used_emails[email]
+      else
+        skupina = skupina + 1
+        used_emails[email] = skupina
+      end
       local current = {
         start = start,
         stop  = stop,
